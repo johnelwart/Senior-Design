@@ -4,3 +4,4 @@
 - [Dallas Temperature code](https://create.arduino.cc/projecthub/TheGadgetBoy/ds18b20-digital-temperature-sensor-and-arduino-9cc806)
 - [Matplotlib Cheat Sheet](https://matplotlib.org/cheatsheets/cheatsheets.pdf)
 - [Matplotlib Documentation](https://matplotlib.org/stable/index.html)
+- [Blink Without Delay](https://www.arduino.cc/en/Tutorial/BuiltInExamples/BlinkWithoutDelay)
