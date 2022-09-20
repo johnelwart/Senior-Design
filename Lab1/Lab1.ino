@@ -4,23 +4,45 @@
 #include <DallasTemperature.h>
 #include <OneWire.h>
 
-const int rs = 12, en = 11, d4 = 6, d5 = 5, d6 = 4, d7 = 3;
+const int rs = 12,
+          en = 11, 
+          d4 = 6, 
+          d5 = 5, 
+          d6 = 4, 
+          d7 = 3;
+
+const long interval = 2000;
+unsigned long prevMS = 0;
+          
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 OneWire oneWire(2);
 DallasTemperature sensor(&oneWire);
 
 void setup() {
-  lcd.setCursor(1, 0);
-  lcd.print("test");
+  lcd.begin(16, 2);
   sensor.begin();
+  pinMode(7, INPUT);
 }
 
 void loop() {
-  sensor.requestTemperatures();
-  //lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print(sensor.getTempCByIndex(0));
-  delay(2000);
+  if (digitalRead(7) == HIGH){
+    unsigned long currMS = millis();
+
+    if (currMS - prevMS >= interval){
+      prevMS = currMS;
+      sensor.requestTemperatures();
+  
+      lcd.setCursor(0, 0);
+      lcd.print("Degrees C: " + String(sensor.getTempCByIndex(0)));
+    
+      lcd.setCursor(0,1);
+      lcd.print("Degrees F: " + String(sensor.getTempFByIndex(0)));
+
+    }
+    
+  } else {
+    lcd.clear();
+  }
   
 }
