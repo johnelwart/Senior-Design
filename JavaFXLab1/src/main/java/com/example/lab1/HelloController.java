@@ -1,7 +1,9 @@
 package com.example.lab1;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 
 public class HelloController {
     @FXML
@@ -11,10 +13,11 @@ public class HelloController {
     private Label cDegrees;
 
     @FXML
-    private Label welcomeText;
+    private Label degreeLabel;
 
     @FXML
-    protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
-    }
+    protected void fButtonClick() { degreeLabel.setText("F"); }
+
+    @FXML
+    protected void cButtonClick() { degreeLabel.setText("C"); }
 }
