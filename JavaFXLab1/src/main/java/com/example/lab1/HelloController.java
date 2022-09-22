@@ -23,5 +23,5 @@ public class HelloController {
     protected void fButtonClick() { degreeLabel.setText("F"); }
     @FXML
     protected void cButtonClick() { degreeLabel.setText("C"); }
-    
+
 }
