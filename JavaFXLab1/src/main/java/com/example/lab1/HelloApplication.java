@@ -32,9 +32,17 @@ public class HelloApplication extends Application {
         stage.setScene(scene);
         stage.show();
     }*/
+    final int WINDOW_SIZE = 300;
+    private ScheduledExecutorService scheduledExecutorService;
 
     public static void main(String[] args) {
         launch();
+    }
+
+    @Override
+    public void stop() throws Exception{
+        super.stop();
+        scheduledExecutorService.shutdownNow();
     }
 
     // Source for displaying live line chart: https://levelup.gitconnected.com/realtime-charts-with-javafx-ed33c46b9c8d
@@ -98,3 +106,4 @@ public class HelloApplication extends Application {
         primaryStage.show();
     }
 }
+
