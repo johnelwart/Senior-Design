@@ -48,24 +48,29 @@ public class HelloApplication extends Application {
     // Source for displaying live line chart: https://levelup.gitconnected.com/realtime-charts-with-javafx-ed33c46b9c8d
     @Override
     public void start(Stage primaryStage) throws Exception {
-        //primaryStage.setTitle("JavaFX Realtime Chart Demo");
+        primaryStage.setTitle("Binary Beasts Lab 1!");
 
         //defining the axes
-        final CategoryAxis xAxis = new CategoryAxis(); // we are gonna plot against time
+        final NumberAxis xAxis = new NumberAxis(); // we are going to plot against time
         final NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Time/s");
-        xAxis.setAnimated(false); // axis animations are removed
-        yAxis.setLabel("Value");
-        yAxis.setAnimated(false); // axis animations are removed
+        xAxis.setLabel("Seconds ago from the current time");
+
+        yAxis.setAutoRanging(false);
+        xAxis.setAnimated(true); // axis animations are removed
+        yAxis.setLabel("Temperature");
+        yAxis.setTickUnit(5);
+        yAxis.setLowerBound(55.0);
+        yAxis.setUpperBound(122.0);
+        yAxis.setAnimated(true); // axis animations are removed
 
         //creating the line chart with two axis created above
-        final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
-        //lineChart.setTitle("Temperature");
-        lineChart.setAnimated(false); // disable animations
+        final LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
+        lineChart.setTitle("Recorded Temperature");
+        lineChart.setAnimated(true); // disable animations
 
         //defining a series to display data
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Data Series");
+        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+        //series.setName("Data Series");
 
         // add series to chart
         lineChart.getData().add(series);
@@ -80,11 +85,10 @@ public class HelloApplication extends Application {
         // put dummy data onto graph per second
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             // get a random integer between 0-10
-            Integer random = ThreadLocalRandom.current().nextInt(10);
+            int random = ThreadLocalRandom.current().nextInt(10);
 
             // Update the chart
             Platform.runLater(() -> {
-                final int WINDOW_SIZE = 10;
                 if (series.getData().size() > WINDOW_SIZE)
                 {
                     series.getData().remove(0);
@@ -92,7 +96,13 @@ public class HelloApplication extends Application {
                 // get current time
                 Date now = new Date();
                 // put random number with current time
-                series.getData().add(new XYChart.Data<>(simpleDateFormat.format(now), random));
+                XYChart.Series<Number, Number> tempSeries = new XYChart.Series<>();
+                //for (int x = 0; x < series.getData().size(); x++){
+                    //series.getData().set(x, );
+
+                //}
+                series.getData().add(new XYChart.Data<>(0, 78));
+                //System.out.println(series.getData().set(0));
             });
         }, 0, 1, TimeUnit.SECONDS);
 
@@ -105,10 +115,6 @@ public class HelloApplication extends Application {
         // show the stage
         primaryStage.show();
     }
-<<<<<<< HEAD
 
 }
-=======
-}
 
->>>>>>> dca0cd681736f938d7e97a443e6c199fef984f4a
