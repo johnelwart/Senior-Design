@@ -62,7 +62,9 @@ public class HelloApplication extends Application {
         List<Double> xDataPoints =new ArrayList<Double>();
 
         yAxis.setAutoRanging(false);
-        xAxis.setUpperBound(300.0);
+        xAxis.setAutoRanging(false);
+        xAxis.setLowerBound(-300.0);
+        xAxis.setUpperBound(0.0);
         xAxis.setAnimated(false); // axis animations are removed
         yAxis.setLabel("Temperature");
         yAxis.setTickUnit(5);
@@ -94,19 +96,20 @@ public class HelloApplication extends Application {
         // put dummy data onto graph per second
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             // get a random integer between 0-10
-            int random = ThreadLocalRandom.current().nextInt(10);
+
 
             // Update the chart
             Platform.runLater(() -> {
                 if (series.getData().size() > WINDOW_SIZE)
                 {
                     series.getData().remove(0);
+                    xDataPoints.remove(0);
                 }
                 Random rand = new Random(); //instance of random class
                 int upperbound = 122;
                 //generate random values from 0-24
                 //int int_random = rand.nextInt(upperbound);
-                double random_double = (double)Math.floor(Math.random()*(122-55+1)+55);
+                double random_double = Math.floor(Math.random()*(122-55+1)+55);
                 //float float_random=rand.nextFloat();
                 //XYChart.Series<Number, Number> tempSeries = new XYChart.Series<>();
                 int length = series.getData().size();
@@ -114,10 +117,10 @@ public class HelloApplication extends Application {
 
                 for (int x = 0; x < length; x++){
                     //System.out.println("here");
-                    series.getData().add(new XYChart.Data<>((300 - (300 - series.getData().size())), xDataPoints.get(x)));
+                    series.getData().add(new XYChart.Data<>( (length-x) * -1, xDataPoints.get(x)));
 
                 }
-                series.getData().add(new XYChart.Data<>(0, 78));
+                series.getData().add(new XYChart.Data<>(0, random_double));
 
                 xDataPoints.add(random_double);
 
