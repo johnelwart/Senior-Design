@@ -6,6 +6,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
@@ -16,7 +17,10 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -55,18 +59,23 @@ public class HelloApplication extends Application {
         final NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Seconds ago from the current time");
 
+        List<Double> xDataPoints =new ArrayList<Double>();
+
         yAxis.setAutoRanging(false);
-        xAxis.setAnimated(true); // axis animations are removed
+        xAxis.setUpperBound(300.0);
+        xAxis.setAnimated(false); // axis animations are removed
         yAxis.setLabel("Temperature");
         yAxis.setTickUnit(5);
+        xAxis.setForceZeroInRange(true);
         yAxis.setLowerBound(55.0);
         yAxis.setUpperBound(122.0);
-        yAxis.setAnimated(true); // axis animations are removed
+        yAxis.setAnimated(false); // axis animations are removed
 
         //creating the line chart with two axis created above
         final LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
         lineChart.setTitle("Recorded Temperature");
-        lineChart.setAnimated(true); // disable animations
+        lineChart.setAnimated(false); // disable animations
+        yAxis.setSide(Side.RIGHT);
 
         //defining a series to display data
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
@@ -93,16 +102,26 @@ public class HelloApplication extends Application {
                 {
                     series.getData().remove(0);
                 }
-                // get current time
-                Date now = new Date();
-                // put random number with current time
-                XYChart.Series<Number, Number> tempSeries = new XYChart.Series<>();
-                //for (int x = 0; x < series.getData().size(); x++){
-                    //series.getData().set(x, );
+                Random rand = new Random(); //instance of random class
+                int upperbound = 122;
+                //generate random values from 0-24
+                //int int_random = rand.nextInt(upperbound);
+                double random_double = (double)Math.floor(Math.random()*(122-55+1)+55);
+                //float float_random=rand.nextFloat();
+                //XYChart.Series<Number, Number> tempSeries = new XYChart.Series<>();
+                int length = series.getData().size();
+                series.getData().clear();
 
-                //}
+                for (int x = 0; x < length; x++){
+                    //System.out.println("here");
+                    series.getData().add(new XYChart.Data<>((300 - (300 - series.getData().size())), xDataPoints.get(x)));
+
+                }
                 series.getData().add(new XYChart.Data<>(0, 78));
-                //System.out.println(series.getData().set(0));
+
+                xDataPoints.add(random_double);
+
+
             });
         }, 0, 1, TimeUnit.SECONDS);
 
