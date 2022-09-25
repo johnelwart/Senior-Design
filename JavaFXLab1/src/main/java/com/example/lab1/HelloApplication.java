@@ -12,7 +12,9 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -53,13 +55,14 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("Binary Beasts Lab 1!");
-
+        StackPane layout = new StackPane();
         //defining the axes
         final NumberAxis xAxis = new NumberAxis(); // we are going to plot against time
         final NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Seconds ago from the current time");
+        Text text = new Text("testing");
 
-        List<Double> xDataPoints =new ArrayList<Double>();
+        List<Double> xDataPoints = new ArrayList<Double>();
 
         yAxis.setAutoRanging(false);
         xAxis.setAutoRanging(false);
@@ -77,6 +80,7 @@ public class HelloApplication extends Application {
         final LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
         lineChart.setTitle("Recorded Temperature");
         lineChart.setAnimated(false); // disable animations
+
         yAxis.setSide(Side.RIGHT);
 
         //defining a series to display data
@@ -87,7 +91,7 @@ public class HelloApplication extends Application {
         lineChart.getData().add(series);
 
         // this is used to display time in HH:mm:ss format
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
+
 
         // setup a scheduled executor to periodically put data into the chart
         ScheduledExecutorService scheduledExecutorService;
@@ -129,9 +133,15 @@ public class HelloApplication extends Application {
         }, 0, 1, TimeUnit.SECONDS);
 
 
+        Button button = new Button();
+        button.setText("Change to C");
+        button.setLayoutX(500);
+        button.setLayoutY(600);
+        layout.getChildren().add(lineChart);
+        layout.getChildren().add(button);
 
-        // setup scene
-        Scene scene = new Scene(lineChart, 800, 600);
+        Scene scene = new Scene(layout, 1000, 800);
+
         primaryStage.setScene(scene);
 
         // show the stage
