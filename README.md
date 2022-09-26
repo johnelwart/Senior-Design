@@ -5,3 +5,4 @@
 - [Matplotlib Cheat Sheet](https://matplotlib.org/cheatsheets/cheatsheets.pdf)
 - [Matplotlib Documentation](https://matplotlib.org/stable/index.html)
 - [Blink Without Delay](https://www.arduino.cc/en/Tutorial/BuiltInExamples/BlinkWithoutDelay)
+- [Helpful Live Data Javafx](https://levelup.gitconnected.com/realtime-charts-with-javafx-ed33c46b9c8d)

@@ -1,4 +1,6 @@
+//www.diyusthad.com
 #include <LiquidCrystal.h>
+//#include <DS18B20.h> // git repo for library: https://github.com/matmunk/DS18B20/blob/master/README.md
 #include <DallasTemperature.h>
 #include <OneWire.h>
 
@@ -10,13 +12,10 @@ const int rs = 12,
           d7 = 3;
 
 const long interval = 2000;
-unsigned long prevMS = 0,
-              currMS;
-
-String degC = "Degrees C: ",
-       degF = "Degrees F: ";
+unsigned long prevMS = 0;
           
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
 OneWire oneWire(2);
 DallasTemperature sensor(&oneWire);
 
@@ -24,36 +23,21 @@ void setup() {
   lcd.begin(16, 2);
   sensor.begin();
   pinMode(7, INPUT);
-
-  sensor.requestTemperatures();
-  degC = "Degrees C: " + String(sensor.getTempCByIndex(0));
-  degF = "Degrees F: " + String(sensor.getTempFByIndex(0));
 }
 
 void loop() {
   if (digitalRead(7) == HIGH){
-    currMS = millis();
-
-     if (sensor.getTempCByIndex(0) == -127) {
-     printToLCD("     Error!     ", "Sensor not found");
-       
-     } else {
-      printToLCD(degC, degF);
-     }
+    unsigned long currMS = millis();
 
     if (currMS - prevMS >= interval){
       prevMS = currMS;
       sensor.requestTemperatures();
-
-      if (sensor.getTempCByIndex(0) == -127) {
-        printToLCD("     Error!     ", "Sensor not found");
-        
-      } else {
-        degC = "Degrees C: " + String(sensor.getTempCByIndex(0));
-        degF = "Degrees F: " + String(sensor.getTempFByIndex(0));
+  
+      lcd.setCursor(0, 0);
+      lcd.print("Degrees C: " + String(sensor.getTempCByIndex(0)));
     
-        printToLCD(degC, degF);
-      }
+      lcd.setCursor(0,1);
+      lcd.print("Degrees F: " + String(sensor.getTempFByIndex(0)));
 
     }
     
@@ -61,12 +45,4 @@ void loop() {
     lcd.clear();
   }
   
-}
-
-void printToLCD(String str1, String str2) {
-  lcd.setCursor(0,0);
-  lcd.print(str1);
-
-  lcd.setCursor(0,1);
-  lcd.print(str2);
 }
