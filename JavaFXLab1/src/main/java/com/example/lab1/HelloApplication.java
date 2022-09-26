@@ -22,6 +22,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,27 +33,23 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-public class HelloApplication extends Application {
-    /*@Override
-    public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("lab1.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 600, 450);
-        //stage.setMaximized(true);
-        stage.setTitle("Binary Beasts Lab 1");
-        stage.setScene(scene);
-        stage.show();
-    }*/
-    final int WINDOW_SIZE = 300;
-    String currUnit = "\u00B0F";
-    boolean isF = true;
+import static java.lang.Math.round;
 
-    TextField text = new TextField();
-    Button button = new Button();
+public class HelloApplication extends Application {
+
+    final int WINDOW_SIZE = 300;
+    public String currUnit = "\u00B0F";
+    public boolean isF = true;
+
+    public TextField text = new TextField();
+    public Button button = new Button();
     BorderPane layout = new BorderPane();
     //defining the axes
     final NumberAxis xAxis = new NumberAxis(); // we are going to plot against time
     final NumberAxis yAxis = new NumberAxis();
     List<Double> xDataPoints = new ArrayList<Double>();
+
+    public static final DecimalFormat df = new DecimalFormat("0.00");
     private ScheduledExecutorService scheduledExecutorService;
 
     public static void main(String[] args) {
@@ -60,6 +57,7 @@ public class HelloApplication extends Application {
     }
 
     public void switchUnits(){
+        System.out.println(xDataPoints);
         if (isF){
             currUnit = "\u00B0C";
             button.setText("Switch to F");
@@ -69,25 +67,35 @@ public class HelloApplication extends Application {
             isF = false;
 
             for (int x = 0; x < xDataPoints.size(); x++){
-                xDataPoints.set(x, (5.0/9.0)*(xDataPoints.get(x)-32.0));
+                double val = (5.0/9.0) * (xDataPoints.get(x) - 32.0);
+                val = val*100;
+                val = Math.round(val);
+                val = val /100;
+                xDataPoints.set(x, val);
             }
-
         }
         else{
             currUnit = "\u00B0F";
             button.setText("Switch to C");
-            yAxis.setLowerBound(55.0);
-            yAxis.setUpperBound(120.0);
+            yAxis.setLowerBound(50.0);
+            yAxis.setUpperBound(122.0);
             yAxis.setLabel("Temperature in " + currUnit);
             isF = true;
 
             for (int x = 0; x < xDataPoints.size(); x++){
-                xDataPoints.set(x, (9.0/5.0)*xDataPoints.get(x)+32.0);
+                double val = (1.8) * xDataPoints.get(x) + 32.0;
+                val = val*100;
+                val = Math.round(val);
+                val = val /100;
+                xDataPoints.set(x, val);
             }
-
         }
+        System.out.println(xDataPoints);
     }
 
+    public boolean getisF(){
+        return isF;
+    }
     @Override
     public void stop() throws Exception{
         super.stop();
@@ -113,7 +121,7 @@ public class HelloApplication extends Application {
         yAxis.setLabel("Temperature in " + currUnit);
         yAxis.setTickUnit(5);
         xAxis.setForceZeroInRange(true);
-        yAxis.setLowerBound(55.0);
+        yAxis.setLowerBound(50.0);
         yAxis.setUpperBound(122.0);
         yAxis.setAnimated(false); // axis animations are removed
 
@@ -159,11 +167,12 @@ public class HelloApplication extends Application {
                 }
                 Random rand = new Random(); //instance of random class
                 double random_double;
-                if (isF){
-                    random_double = Math.floor(Math.random()*(122-55+1)+55);
+
+                if (getisF()){
+                    random_double = Math.floor(Math.random()*(120-55+1)+55);
                 }
                 else{
-                    random_double = Math.floor(Math.random()*(50-10+1)+50);
+                    random_double = Math.floor(Math.random()*(50-10+1)+10);
                 }
 
                 int length = series.getData().size();
@@ -174,10 +183,11 @@ public class HelloApplication extends Application {
                     series.getData().add(new XYChart.Data<>( (length-x) * -1, xDataPoints.get(x)));
 
                 }
+
                 series.getData().add(new XYChart.Data<>(0, random_double));
                 xDataPoints.add(random_double);
                 text.setText("Current Temperature: " + xDataPoints.get(xDataPoints.size()-1).toString() + currUnit);
-                System.out.println(series.getData());
+                //System.out.println(series.getData());
 
             });
         }, 0, 1, TimeUnit.SECONDS);
