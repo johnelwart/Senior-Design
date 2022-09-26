@@ -13,7 +13,11 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -39,10 +43,49 @@ public class HelloApplication extends Application {
         stage.show();
     }*/
     final int WINDOW_SIZE = 300;
+    String currUnit = "\u00B0F";
+    boolean isF = true;
+
+    TextField text = new TextField();
+    Button button = new Button();
+    BorderPane layout = new BorderPane();
+    //defining the axes
+    final NumberAxis xAxis = new NumberAxis(); // we are going to plot against time
+    final NumberAxis yAxis = new NumberAxis();
+    List<Double> xDataPoints = new ArrayList<Double>();
     private ScheduledExecutorService scheduledExecutorService;
 
     public static void main(String[] args) {
         launch();
+    }
+
+    public void switchUnits(){
+        if (isF){
+            currUnit = "\u00B0C";
+            button.setText("Switch to F");
+            yAxis.setLowerBound(10.0);
+            yAxis.setUpperBound(50.0);
+            yAxis.setLabel("Temperature in " + currUnit);
+            isF = false;
+
+            for (int x = 0; x < xDataPoints.size(); x++){
+                xDataPoints.set(x, (5.0/9.0)*(xDataPoints.get(x)-32.0));
+            }
+
+        }
+        else{
+            currUnit = "\u00B0F";
+            button.setText("Switch to C");
+            yAxis.setLowerBound(55.0);
+            yAxis.setUpperBound(120.0);
+            yAxis.setLabel("Temperature in " + currUnit);
+            isF = true;
+
+            for (int x = 0; x < xDataPoints.size(); x++){
+                xDataPoints.set(x, (9.0/5.0)*xDataPoints.get(x)+32.0);
+            }
+
+        }
     }
 
     @Override
@@ -55,21 +98,19 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("Binary Beasts Lab 1!");
-        StackPane layout = new StackPane();
-        //defining the axes
-        final NumberAxis xAxis = new NumberAxis(); // we are going to plot against time
-        final NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Seconds ago from the current time");
-        Text text = new Text("testing");
 
-        List<Double> xDataPoints = new ArrayList<Double>();
+        xAxis.setLabel("Seconds ago from the current time");
+
+        button.setOnAction(actionEvent -> switchUnits());
+
+
 
         yAxis.setAutoRanging(false);
         xAxis.setAutoRanging(false);
         xAxis.setLowerBound(-300.0);
         xAxis.setUpperBound(0.0);
         xAxis.setAnimated(false); // axis animations are removed
-        yAxis.setLabel("Temperature");
+        yAxis.setLabel("Temperature in " + currUnit);
         yAxis.setTickUnit(5);
         xAxis.setForceZeroInRange(true);
         yAxis.setLowerBound(55.0);
@@ -92,6 +133,13 @@ public class HelloApplication extends Application {
 
         // this is used to display time in HH:mm:ss format
 
+        button.setText("Change to C");
+        button.setPrefSize(150, 100);
+
+        text.setEditable(false);
+        text.setPrefSize(100, 100);
+        text.setFont(Font.font("Verdana", FontWeight.BOLD, 50));
+        //text.textProperty().addListener((observable, oldVal, newVal) -> text.setText("Current Temperature: " + xDataPoints.get(0)));
 
         // setup a scheduled executor to periodically put data into the chart
         ScheduledExecutorService scheduledExecutorService;
@@ -110,12 +158,14 @@ public class HelloApplication extends Application {
                     xDataPoints.remove(0);
                 }
                 Random rand = new Random(); //instance of random class
-                int upperbound = 122;
-                //generate random values from 0-24
-                //int int_random = rand.nextInt(upperbound);
-                double random_double = Math.floor(Math.random()*(122-55+1)+55);
-                //float float_random=rand.nextFloat();
-                //XYChart.Series<Number, Number> tempSeries = new XYChart.Series<>();
+                double random_double;
+                if (isF){
+                    random_double = Math.floor(Math.random()*(122-55+1)+55);
+                }
+                else{
+                    random_double = Math.floor(Math.random()*(50-10+1)+50);
+                }
+
                 int length = series.getData().size();
                 series.getData().clear();
 
@@ -125,21 +175,18 @@ public class HelloApplication extends Application {
 
                 }
                 series.getData().add(new XYChart.Data<>(0, random_double));
-
                 xDataPoints.add(random_double);
-
+                text.setText("Current Temperature: " + xDataPoints.get(xDataPoints.size()-1).toString() + currUnit);
+                System.out.println(series.getData());
 
             });
         }, 0, 1, TimeUnit.SECONDS);
 
 
-        Button button = new Button();
-        button.setText("Change to C");
-        button.setLayoutX(500);
-        button.setLayoutY(600);
-        layout.getChildren().add(lineChart);
-        layout.getChildren().add(button);
 
+        layout.setCenter(lineChart);
+        layout.setLeft(button);
+        layout.setTop(text);
         Scene scene = new Scene(layout, 1000, 800);
 
         primaryStage.setScene(scene);
