@@ -24,6 +24,7 @@ void setup() {
   lcd.begin(16, 2);
   sensor.begin();
   pinMode(7, INPUT);
+  Serial.begin(9600);
 
   sensor.requestTemperatures();
   degC = "Degrees C: " + String(sensor.getTempCByIndex(0));
@@ -53,6 +54,8 @@ void loop() {
         degF = "Degrees F: " + String(sensor.getTempFByIndex(0));
     
         printToLCD(degC, degF);
+        
+        Serial.print(String(sensor.getTempCByIndex(0)) + "\n");
       }
 
     }
