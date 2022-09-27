@@ -32,12 +32,14 @@ void setup() {
 }
 
 void loop() {
+
+  
   if (digitalRead(7) == HIGH){
     currMS = millis();
 
      if (sensor.getTempCByIndex(0) == -127) {
-     printToLCD("     Error!     ", "Sensor not found");
-       
+      printToLCD("     Error!     ", "Sensor not found");
+      
      } else {
       printToLCD(degC, degF);
      }
@@ -48,6 +50,7 @@ void loop() {
 
       if (sensor.getTempCByIndex(0) == -127) {
         printToLCD("     Error!     ", "Sensor not found");
+        Serial.print(String("-127\n"));
         
       } else {
         degC = "Degrees C: " + String(sensor.getTempCByIndex(0));
