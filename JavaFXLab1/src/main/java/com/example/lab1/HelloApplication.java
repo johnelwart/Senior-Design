@@ -21,6 +21,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -41,6 +42,8 @@ public class HelloApplication extends Application {
     public String currUnit = "\u00B0F";
     public boolean isF = true;
 
+    public TempBufferReading buffer = new TempBufferReading();
+
     public TextField text = new TextField();
     public Button button = new Button();
     BorderPane layout = new BorderPane();
@@ -51,6 +54,9 @@ public class HelloApplication extends Application {
 
     public static final DecimalFormat df = new DecimalFormat("0.00");
     private ScheduledExecutorService scheduledExecutorService;
+
+    public HelloApplication() throws FileNotFoundException {
+    }
 
     public static void main(String[] args) {
         launch();
@@ -144,7 +150,7 @@ public class HelloApplication extends Application {
 
         text.setEditable(false);
         text.setPrefSize(100, 100);
-        text.setFont(Font.font("Verdana", FontWeight.BOLD, 50));
+        text.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
         //text.textProperty().addListener((observable, oldVal, newVal) -> text.setText("Current Temperature: " + xDataPoints.get(0)));
 
         // setup a scheduled executor to periodically put data into the chart
@@ -163,35 +169,36 @@ public class HelloApplication extends Application {
                     series.getData().remove(0);
                     xDataPoints.remove(0);
                 }
-                Random rand = new Random(); //instance of random class
-                double random_double;
-
+                String tempTemp;
+                Double temp_double = 22.0;
+                try {
+                    tempTemp = buffer.getMostRecentData();
+                    //System.out.println(tempTemp);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                temp_double = Double.parseDouble(tempTemp);
                 if (getisF()){
-                    random_double = Math.floor(Math.random()*(120-55+1)+55);
+                    double val = (1.8) * temp_double + 32.0;
+                    val = val*100;
+                    val = Math.round(val);
+                    temp_double = val /100;
                 }
-                else{
-                    random_double = Math.floor(Math.random()*(50-10+1)+10);
-                }
-
                 int length = series.getData().size();
                 series.getData().clear();
 
                 for (int x = 0; x < length; x++){
                     series.getData().add(new XYChart.Data<>( (length-x) * -1, xDataPoints.get(x)));
-
                 }
-                if (xDataPoints.size() == 5 || xDataPoints.size() == 6 || xDataPoints.size() == 7){
-                    series.getData().add(new XYChart.Data<>(0, 0.0));
-                    xDataPoints.add(0.0);
+
+                series.getData().add(new XYChart.Data<>(0, temp_double));
+                xDataPoints.add(temp_double);
+                if (tempTemp == "-127.0"){
+                    text.setText("Current Temperature: NO DATA PROVIDED");
                 }
                 else{
-                    series.getData().add(new XYChart.Data<>(0, random_double));
-                    xDataPoints.add(random_double);
+                    text.setText("Current Temperature: " + xDataPoints.get(xDataPoints.size()-1).toString() + currUnit);
                 }
-
-
-                text.setText("Current Temperature: " + xDataPoints.get(xDataPoints.size()-1).toString() + currUnit);
-                //System.out.println(series.getData());
 
             });
         }, 0, 1, TimeUnit.SECONDS);
