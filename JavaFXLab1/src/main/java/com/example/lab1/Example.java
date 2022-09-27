@@ -1,10 +1,12 @@
+package com.example.lab1;
+
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 
 import java.net.URI;
 
-public class Twilio {
+public class Example {
     // Find your Account SID and Auth Token at twilio.com/console
     // and set the environment variables. See http://twil.io/secure
     public static final String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
