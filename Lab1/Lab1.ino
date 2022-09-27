@@ -9,8 +9,7 @@ const int rs = 12,
           d6 = 4, 
           d7 = 3;
 
-const long interval = 500;
-           
+const long interval = 2000;
 unsigned long prevMS = 0,
               currMS;
 
@@ -27,48 +26,47 @@ void setup() {
   pinMode(7, INPUT);
   Serial.begin(9600);
 
-  getTemps();
-  
+  sensor.requestTemperatures();
   degC = "Degrees C: " + String(sensor.getTempCByIndex(0));
   degF = "Degrees F: " + String(sensor.getTempFByIndex(0));
 }
 
 void loop() {
-  currMS = millis();
 
-  if (currMS - prevMS >= interval) {
-    prevMS = currMS;
-    
-    getTemps();
   
-    while (digitalRead(7) == HIGH) {
+  if (digitalRead(7) == HIGH){
+    currMS = millis();
+
+     if (sensor.getTempCByIndex(0) == -127) {
+      printToLCD("     Error!     ", "Sensor not found");
       
-     if (sensor.getTempCByIndex(0) == -127) {
-       printToLCD("     Error!     ", "Sensor not found");
-         
      } else {
-       printToLCD(degC, degF);
+      printToLCD(degC, degF);
      }
-       
-     getTemps();
-    
-     if (sensor.getTempCByIndex(0) == -127) {
-       printToLCD("     Error!     ", "Sensor not found");
-            
-     } else {
-       degC = "Degrees C: " + String(sensor.getTempCByIndex(0));
-       degF = "Degrees F: " + String(sensor.getTempFByIndex(0));
+
+    if (currMS - prevMS >= interval){
+      prevMS = currMS;
+      sensor.requestTemperatures();
+
+      if (sensor.getTempCByIndex(0) == -127) {
+        printToLCD("     Error!     ", "Sensor not found");
+        Serial.print(String("-127\n"));
         
-       printToLCD(degC, degF);
-            
-       Serial.print(String(sensor.getTempCByIndex(0)) + "\n");
-     }   
+      } else {
+        degC = "Degrees C: " + String(sensor.getTempCByIndex(0));
+        degF = "Degrees F: " + String(sensor.getTempFByIndex(0));
+    
+        printToLCD(degC, degF);
+        
+        Serial.print(String(sensor.getTempCByIndex(0)) + "\n");
+      }
+
     }
     
-    Serial.print(String(sensor.getTempCByIndex(0)) + "\n");
+  } else {
     lcd.clear();
-    
   }
+  
 }
 
 void printToLCD(String str1, String str2) {
@@ -77,10 +75,4 @@ void printToLCD(String str1, String str2) {
 
   lcd.setCursor(0,1);
   lcd.print(str2);
-}
-
-void getTemps() {
-  sensor.setWaitForConversion(false);
-  sensor.requestTemperatures();
-  sensor.setWaitForConversion(true);
 }

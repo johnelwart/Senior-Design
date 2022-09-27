@@ -57,7 +57,6 @@ public class HelloApplication extends Application {
     }
 
     public void switchUnits(){
-        System.out.println(xDataPoints);
         if (isF){
             currUnit = "\u00B0C";
             button.setText("Switch to F");
@@ -90,7 +89,6 @@ public class HelloApplication extends Application {
                 xDataPoints.set(x, val);
             }
         }
-        System.out.println(xDataPoints);
     }
 
     public boolean getisF(){
@@ -179,13 +177,19 @@ public class HelloApplication extends Application {
                 series.getData().clear();
 
                 for (int x = 0; x < length; x++){
-                    //System.out.println("here");
                     series.getData().add(new XYChart.Data<>( (length-x) * -1, xDataPoints.get(x)));
 
                 }
+                if (xDataPoints.size() == 5 || xDataPoints.size() == 6 || xDataPoints.size() == 7){
+                    series.getData().add(new XYChart.Data<>(0, 0.0));
+                    xDataPoints.add(0.0);
+                }
+                else{
+                    series.getData().add(new XYChart.Data<>(0, random_double));
+                    xDataPoints.add(random_double);
+                }
 
-                series.getData().add(new XYChart.Data<>(0, random_double));
-                xDataPoints.add(random_double);
+
                 text.setText("Current Temperature: " + xDataPoints.get(xDataPoints.size()-1).toString() + currUnit);
                 //System.out.println(series.getData());
 
