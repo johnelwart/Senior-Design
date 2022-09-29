@@ -170,6 +170,17 @@ public class HelloApplication extends Application {
         }
     }
 
+    public void checkLimits(){
+        if (xDataPoints.get(0) > currMax){
+            Example.main(currPhone, "TEMPERATURE HAS EXCEEDED MAX LIMIT");
+            textSent = true;
+        }
+        if (xDataPoints.get(0) < currMin) {
+            Example.main(currPhone, "TEMPERATURE HAS EXCEEDED MIN LIMIT");
+            textSent = true;
+        }
+    }
+
     @Override
     public void stop() throws Exception{
         super.stop();
@@ -280,7 +291,7 @@ public class HelloApplication extends Application {
                 else{
                     text.setText("Current Temperature: " + xDataPoints.get(xDataPoints.size()-1).toString() + currUnit);
                 }
-
+                checkLimits();
             });
         }, 0, 1, TimeUnit.SECONDS);
         information.setVgap(10.0);
