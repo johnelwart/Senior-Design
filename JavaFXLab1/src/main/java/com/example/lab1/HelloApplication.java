@@ -1,36 +1,31 @@
 package com.example.lab1;
-
+import com.example.lab1.Example;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
-import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.round;
@@ -40,17 +35,32 @@ public class HelloApplication extends Application {
     final int WINDOW_SIZE = 300;
     public String currUnit = "\u00B0F";
     public boolean isF = true;
-
+    public TempBufferReading buffer = new TempBufferReading();
     public TextField text = new TextField();
+    public Label currMinDisplay = new Label();
+    public Label currMaxDisplay = new Label();
+    public Label currPhoneDisplay = new Label();
+    public TextField minUpdate = new TextField();
+    public TextField maxUpdate = new TextField();
+    public TextField phoneUpdate = new TextField();
+
+    public boolean textSent = false;
+    public Button updateButton = new Button();
     public Button button = new Button();
     BorderPane layout = new BorderPane();
-    //defining the axes
-    final NumberAxis xAxis = new NumberAxis(); // we are going to plot against time
+    FlowPane information = new FlowPane(Orientation.VERTICAL);
+    final NumberAxis xAxis = new NumberAxis();
     final NumberAxis yAxis = new NumberAxis();
     List<Double> xDataPoints = new ArrayList<Double>();
 
-    public static final DecimalFormat df = new DecimalFormat("0.00");
+    public double currMax = 90.0;
+    public double currMin = 50.0;
+
+    public String currPhone = "5639497206";
     private ScheduledExecutorService scheduledExecutorService;
+
+    public HelloApplication() throws FileNotFoundException {
+    }
 
     public static void main(String[] args) {
         launch();
@@ -65,13 +75,27 @@ public class HelloApplication extends Application {
             yAxis.setLabel("Temperature in " + currUnit);
             isF = false;
 
-            for (int x = 0; x < xDataPoints.size(); x++){
-                double val = (5.0/9.0) * (xDataPoints.get(x) - 32.0);
-                val = val*100;
+            for (int x = 0; x < xDataPoints.size(); x++) {
+                double val = (5.0 / 9.0) * (xDataPoints.get(x) - 32.0);
+                val = val * 100;
                 val = Math.round(val);
-                val = val /100;
+                val = val / 100;
                 xDataPoints.set(x, val);
             }
+            double val = (5.0 / 9.0) * (currMin - 32.0);
+            val = val * 100;
+            val = Math.round(val);
+            currMin = val / 100;
+            val = (5.0 / 9.0) * (currMax - 32.0);
+            val = val * 100;
+            val = Math.round(val);
+            currMax = val / 100;
+            minUpdate.setPromptText("Enter new min value in C");
+            maxUpdate.setPromptText("Enter new max value in C");
+            currMinDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
+            currMinDisplay.setText("Current Min temperature in C:" + currMin);
+            currMaxDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
+            currMaxDisplay.setText("Current Max temperature in C:" + currMax);
         }
         else{
             currUnit = "\u00B0F";
@@ -88,12 +112,75 @@ public class HelloApplication extends Application {
                 val = val /100;
                 xDataPoints.set(x, val);
             }
+            double val = (1.8) * currMin + 32.0;
+            val = val * 100;
+            val = Math.round(val);
+            currMin = val / 100;
+            val = (1.8) * currMax + 32.0;
+            val = val * 100;
+            val = Math.round(val);
+            currMax = val / 100;
+            minUpdate.setPromptText("Enter new min value in F");
+            maxUpdate.setPromptText("Enter new max value in F");
+            currMinDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
+            currMinDisplay.setText("Current Min temperature in F:" + currMin);
+            currMaxDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
+            currMaxDisplay.setText("Current Max temperature in F:" + currMax);
         }
     }
 
     public boolean getisF(){
         return isF;
     }
+
+    public void updateButtonPushed(){
+        textSent = false;
+        String regex = "[0-9]+";
+        String tempString;
+        if (!minUpdate.getText().isBlank()){
+            tempString = minUpdate.getText();
+            if (tempString.matches(regex)){
+                currMin = Double.parseDouble(minUpdate.getText());
+                if (getisF()){
+                    currMinDisplay.setText("Current Max temperature in F:" + currMin);
+                }
+                else{
+                    currMinDisplay.setText("Current Max temperature in C:" + currMin);
+                }
+            }
+        }
+        if (!maxUpdate.getText().isBlank()){
+            tempString = maxUpdate.getText();
+            if (tempString.matches(regex)) {
+                currMax = Double.parseDouble(maxUpdate.getText());
+                if (getisF()){
+                    currMaxDisplay.setText("Current Max temperature in F:" + currMax);
+                }
+                else{
+                    currMaxDisplay.setText("Current Max temperature in C:" + currMax);
+                }
+            }
+        }
+        if (!phoneUpdate.getText().isBlank()){
+            tempString = phoneUpdate.getText();
+            if ((tempString.matches(regex)) && (tempString.length() == 10)){
+                currPhone = tempString;
+                currPhoneDisplay.setText("Current phone number: " + currPhone);
+            }
+        }
+    }
+
+    public void checkLimits(){
+        if (xDataPoints.get(0) > currMax){
+            Example.main(currPhone, "TEMPERATURE HAS EXCEEDED MAX LIMIT");
+            textSent = true;
+        }
+        if (xDataPoints.get(0) < currMin) {
+            Example.main(currPhone, "TEMPERATURE HAS EXCEEDED MIN LIMIT");
+            textSent = true;
+        }
+    }
+
     @Override
     public void stop() throws Exception{
         super.stop();
@@ -108,8 +195,7 @@ public class HelloApplication extends Application {
         xAxis.setLabel("Seconds ago from the current time");
 
         button.setOnAction(actionEvent -> switchUnits());
-
-
+        updateButton.setOnAction(actionEvent -> updateButtonPushed());
 
         yAxis.setAutoRanging(false);
         xAxis.setAutoRanging(false);
@@ -142,10 +228,23 @@ public class HelloApplication extends Application {
         button.setText("Change to C");
         button.setPrefSize(150, 100);
 
+        updateButton.setText("Update");
+        updateButton.setPrefSize(150, 100);
+
         text.setEditable(false);
         text.setPrefSize(100, 100);
-        text.setFont(Font.font("Verdana", FontWeight.BOLD, 50));
-        //text.textProperty().addListener((observable, oldVal, newVal) -> text.setText("Current Temperature: " + xDataPoints.get(0)));
+        text.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
+
+        currMinDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
+        currMinDisplay.setText("Current Min temperature in F:" + currMin);
+        currMaxDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
+        currMaxDisplay.setText("Current Max temperature in F:" + currMax);
+        currPhoneDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
+        currPhoneDisplay.setText("Current phone number: " + currPhone);
+
+        minUpdate.setPromptText("Enter new min value in F");
+        maxUpdate.setPromptText("Enter new max value in F");
+        phoneUpdate.setPromptText("Enter new phone number");
 
         // setup a scheduled executor to periodically put data into the chart
         ScheduledExecutorService scheduledExecutorService;
@@ -155,7 +254,6 @@ public class HelloApplication extends Application {
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             // get a random integer between 0-10
 
-
             // Update the chart
             Platform.runLater(() -> {
                 if (series.getData().size() > WINDOW_SIZE)
@@ -163,43 +261,44 @@ public class HelloApplication extends Application {
                     series.getData().remove(0);
                     xDataPoints.remove(0);
                 }
-                Random rand = new Random(); //instance of random class
-                double random_double;
-
-                if (getisF()){
-                    random_double = Math.floor(Math.random()*(120-55+1)+55);
+                String tempTemp;
+                Double temp_double = 22.0;
+                try {
+                    tempTemp = buffer.getMostRecentData();
+                    //System.out.println(tempTemp);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-                else{
-                    random_double = Math.floor(Math.random()*(50-10+1)+10);
+                temp_double = Double.parseDouble(tempTemp);
+                if (getisF()) {
+                    double val = (1.8) * temp_double + 32.0;
+                    val = val * 100;
+                    val = Math.round(val);
+                    temp_double = val / 100;
                 }
-
                 int length = series.getData().size();
                 series.getData().clear();
 
                 for (int x = 0; x < length; x++){
                     series.getData().add(new XYChart.Data<>( (length-x) * -1, xDataPoints.get(x)));
-
                 }
-                if (xDataPoints.size() == 5 || xDataPoints.size() == 6 || xDataPoints.size() == 7){
-                    series.getData().add(new XYChart.Data<>(0, 0.0));
-                    xDataPoints.add(0.0);
+
+                series.getData().add(new XYChart.Data<>(0, temp_double));
+                xDataPoints.add(temp_double);
+                if (tempTemp == "-127.0"){
+                    text.setText("Current Temperature: NO DATA PROVIDED");
                 }
                 else{
-                    series.getData().add(new XYChart.Data<>(0, random_double));
-                    xDataPoints.add(random_double);
+                    text.setText("Current Temperature: " + xDataPoints.get(xDataPoints.size()-1).toString() + currUnit);
                 }
-
-
-                text.setText("Current Temperature: " + xDataPoints.get(xDataPoints.size()-1).toString() + currUnit);
-                //System.out.println(series.getData());
-
+                checkLimits();
             });
         }, 0, 1, TimeUnit.SECONDS);
-
-
+        information.setVgap(10.0);
+        information.getChildren().addAll(button, currMinDisplay, minUpdate, currMaxDisplay, maxUpdate,  currPhoneDisplay, phoneUpdate, updateButton);
 
         layout.setCenter(lineChart);
-        layout.setLeft(button);
+        layout.setLeft(information);
         layout.setTop(text);
         Scene scene = new Scene(layout, 1000, 800);
 
