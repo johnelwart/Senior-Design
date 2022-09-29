@@ -189,13 +189,18 @@ public class HelloApplication extends Application {
     }
 
     public void checkLimits(){
-        if (xDataPoints.get(0) > currMax){
+        if ((xDataPoints.get(0) > currMax) && (!textSent)){
             sendMessage(currPhone, "TEMPERATURE HAS EXCEEDED MAX LIMIT");
             textSent = true;
         }
-        if (xDataPoints.get(0) < currMin) {
+        if ((xDataPoints.get(0) < currMin) && (!textSent)) {
             sendMessage(currPhone, "TEMPERATURE HAS EXCEEDED MIN LIMIT");
             textSent = true;
+        }
+        if (textSent){
+            if ((xDataPoints.get(0) < currMax) && (xDataPoints.get(0) > currMin) ) {
+                textSent = true;
+            }
         }
     }
 
@@ -309,9 +314,8 @@ public class HelloApplication extends Application {
                 else{
                     text.setText("Current Temperature: " + xDataPoints.get(xDataPoints.size()-1).toString() + currUnit);
                 }
-                if (!textSent){
-                    checkLimits();
-                }
+                checkLimits();
+
 
             });
         }, 0, 1, TimeUnit.SECONDS);
