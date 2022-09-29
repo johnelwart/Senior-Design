@@ -1,16 +1,10 @@
 package com.example.lab1;
-
+import com.example.lab1.Example;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
-import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -19,7 +13,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -27,15 +20,12 @@ import javafx.stage.Stage;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.round;
@@ -145,27 +135,38 @@ public class HelloApplication extends Application {
 
     public void updateButtonPushed(){
         textSent = false;
+        String regex = "[0-9]+";
+        String tempString;
         if (!minUpdate.getText().isBlank()){
-            currMin = Double.parseDouble(minUpdate.getText());
-            if (getisF()){
-                currMinDisplay.setText("Current Max temperature in F:" + currMin);
-            }
-            else{
-                currMinDisplay.setText("Current Max temperature in C:" + currMin);
+            tempString = minUpdate.getText();
+            if (tempString.matches(regex)){
+                currMin = Double.parseDouble(minUpdate.getText());
+                if (getisF()){
+                    currMinDisplay.setText("Current Max temperature in F:" + currMin);
+                }
+                else{
+                    currMinDisplay.setText("Current Max temperature in C:" + currMin);
+                }
             }
         }
         if (!maxUpdate.getText().isBlank()){
-            currMax = Double.parseDouble(maxUpdate.getText());
-            if (getisF()){
-                currMaxDisplay.setText("Current Max temperature in F:" + currMax);
-            }
-            else{
-                currMaxDisplay.setText("Current Max temperature in C:" + currMax);
+            tempString = maxUpdate.getText();
+            if (tempString.matches(regex)) {
+                currMax = Double.parseDouble(maxUpdate.getText());
+                if (getisF()){
+                    currMaxDisplay.setText("Current Max temperature in F:" + currMax);
+                }
+                else{
+                    currMaxDisplay.setText("Current Max temperature in C:" + currMax);
+                }
             }
         }
         if (!phoneUpdate.getText().isBlank()){
-             currPhone = phoneUpdate.getText();
-            currPhoneDisplay.setText("Current phone number: " + currPhone);
+            tempString = phoneUpdate.getText();
+            if ((tempString.matches(regex)) && (tempString.length() == 10)){
+                currPhone = tempString;
+                currPhoneDisplay.setText("Current phone number: " + currPhone);
+            }
         }
     }
 
