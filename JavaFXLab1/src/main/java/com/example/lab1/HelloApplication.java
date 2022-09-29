@@ -54,6 +54,7 @@ public class HelloApplication extends Application {
     public TextField maxUpdate = new TextField();
     public TextField phoneUpdate = new TextField();
 
+    public boolean textSent = false;
     public Button updateButton = new Button();
     public Button button = new Button();
     BorderPane layout = new BorderPane();
@@ -61,6 +62,11 @@ public class HelloApplication extends Application {
     final NumberAxis xAxis = new NumberAxis();
     final NumberAxis yAxis = new NumberAxis();
     List<Double> xDataPoints = new ArrayList<Double>();
+
+    public double currMax = 90.0;
+    public double currMin = 50.0;
+
+    public String currPhone = "5639497206";
     private ScheduledExecutorService scheduledExecutorService;
 
     public HelloApplication() throws FileNotFoundException {
@@ -79,13 +85,27 @@ public class HelloApplication extends Application {
             yAxis.setLabel("Temperature in " + currUnit);
             isF = false;
 
-            for (int x = 0; x < xDataPoints.size(); x++){
-                double val = (5.0/9.0) * (xDataPoints.get(x) - 32.0);
-                val = val*100;
+            for (int x = 0; x < xDataPoints.size(); x++) {
+                double val = (5.0 / 9.0) * (xDataPoints.get(x) - 32.0);
+                val = val * 100;
                 val = Math.round(val);
-                val = val /100;
+                val = val / 100;
                 xDataPoints.set(x, val);
             }
+            double val = (5.0 / 9.0) * (currMin - 32.0);
+            val = val * 100;
+            val = Math.round(val);
+            currMin = val / 100;
+            val = (5.0 / 9.0) * (currMax - 32.0);
+            val = val * 100;
+            val = Math.round(val);
+            currMax = val / 100;
+            minUpdate.setPromptText("Enter new min value in C");
+            maxUpdate.setPromptText("Enter new max value in C");
+            currMinDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
+            currMinDisplay.setText("Current Min temperature in C:" + currMin);
+            currMaxDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
+            currMaxDisplay.setText("Current Max temperature in C:" + currMax);
         }
         else{
             currUnit = "\u00B0F";
@@ -102,12 +122,53 @@ public class HelloApplication extends Application {
                 val = val /100;
                 xDataPoints.set(x, val);
             }
+            double val = (1.8) * currMin + 32.0;
+            val = val * 100;
+            val = Math.round(val);
+            currMin = val / 100;
+            val = (1.8) * currMax + 32.0;
+            val = val * 100;
+            val = Math.round(val);
+            currMax = val / 100;
+            minUpdate.setPromptText("Enter new min value in F");
+            maxUpdate.setPromptText("Enter new max value in F");
+            currMinDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
+            currMinDisplay.setText("Current Min temperature in F:" + currMin);
+            currMaxDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
+            currMaxDisplay.setText("Current Max temperature in F:" + currMax);
         }
     }
 
     public boolean getisF(){
         return isF;
     }
+
+    public void updateButtonPushed(){
+        textSent = false;
+        if (!minUpdate.getText().isBlank()){
+            currMin = Double.parseDouble(minUpdate.getText());
+            if (getisF()){
+                currMinDisplay.setText("Current Max temperature in F:" + currMin);
+            }
+            else{
+                currMinDisplay.setText("Current Max temperature in C:" + currMin);
+            }
+        }
+        if (!maxUpdate.getText().isBlank()){
+            currMax = Double.parseDouble(maxUpdate.getText());
+            if (getisF()){
+                currMaxDisplay.setText("Current Max temperature in F:" + currMax);
+            }
+            else{
+                currMaxDisplay.setText("Current Max temperature in C:" + currMax);
+            }
+        }
+        if (!phoneUpdate.getText().isBlank()){
+             currPhone = phoneUpdate.getText();
+            currPhoneDisplay.setText("Current phone number: " + currPhone);
+        }
+    }
+
     @Override
     public void stop() throws Exception{
         super.stop();
@@ -122,6 +183,7 @@ public class HelloApplication extends Application {
         xAxis.setLabel("Seconds ago from the current time");
 
         button.setOnAction(actionEvent -> switchUnits());
+        updateButton.setOnAction(actionEvent -> updateButtonPushed());
 
         yAxis.setAutoRanging(false);
         xAxis.setAutoRanging(false);
@@ -154,16 +216,19 @@ public class HelloApplication extends Application {
         button.setText("Change to C");
         button.setPrefSize(150, 100);
 
+        updateButton.setText("Update");
+        updateButton.setPrefSize(150, 100);
+
         text.setEditable(false);
         text.setPrefSize(100, 100);
         text.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
 
         currMinDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
-        currMinDisplay.setText("Current Min temperature in F:");
+        currMinDisplay.setText("Current Min temperature in F:" + currMin);
         currMaxDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
-        currMaxDisplay.setText("Current Max temperature in F:");
+        currMaxDisplay.setText("Current Max temperature in F:" + currMax);
         currPhoneDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
-        currPhoneDisplay.setText("Current phone number: 5639497206");
+        currPhoneDisplay.setText("Current phone number: " + currPhone);
 
         minUpdate.setPromptText("Enter new min value in F");
         maxUpdate.setPromptText("Enter new max value in F");
@@ -176,7 +241,6 @@ public class HelloApplication extends Application {
         // put dummy data onto graph per second
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             // get a random integer between 0-10
-
 
             // Update the chart
             Platform.runLater(() -> {
@@ -194,11 +258,11 @@ public class HelloApplication extends Application {
                     throw new RuntimeException(e);
                 }
                 temp_double = Double.parseDouble(tempTemp);
-                if (getisF()){
+                if (getisF()) {
                     double val = (1.8) * temp_double + 32.0;
-                    val = val*100;
+                    val = val * 100;
                     val = Math.round(val);
-                    temp_double = val /100;
+                    temp_double = val / 100;
                 }
                 int length = series.getData().size();
                 series.getData().clear();
@@ -219,7 +283,7 @@ public class HelloApplication extends Application {
             });
         }, 0, 1, TimeUnit.SECONDS);
         information.setVgap(10.0);
-        information.getChildren().addAll(button, currMinDisplay, minUpdate, currMaxDisplay, maxUpdate,  currPhoneDisplay, phoneUpdate);
+        information.getChildren().addAll(button, currMinDisplay, minUpdate, currMaxDisplay, maxUpdate,  currPhoneDisplay, phoneUpdate, updateButton);
 
         layout.setCenter(lineChart);
         layout.setLeft(information);
