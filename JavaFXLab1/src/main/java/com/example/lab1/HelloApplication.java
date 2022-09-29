@@ -1,5 +1,8 @@
 package com.example.lab1;
 import com.example.lab1.Example;
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
@@ -44,6 +47,10 @@ public class HelloApplication extends Application {
     public TextField maxUpdate = new TextField();
     public TextField phoneUpdate = new TextField();
 
+    public static final String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
+    public static final String AUTH_TOKEN = System.getenv("TWILIO_ACCOUNT_AUTH");
+    public static final String PHONE = System.getenv("TWILIO_ACCOUNT_PHONE");
+    public Example textSender = new Example();
     public boolean textSent = false;
     public Button updateButton = new Button();
     public Button button = new Button();
@@ -60,6 +67,17 @@ public class HelloApplication extends Application {
     private ScheduledExecutorService scheduledExecutorService;
 
     public HelloApplication() throws FileNotFoundException {
+    }
+
+    public void sendMessage(String args, String alert) {
+        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+
+        // To, From
+        Message message = Message.creator(new PhoneNumber("+1" + args),
+                new PhoneNumber(PHONE),
+                alert).create();
+
+        System.out.println(message.getSid());
     }
 
     public static void main(String[] args) {
@@ -172,11 +190,11 @@ public class HelloApplication extends Application {
 
     public void checkLimits(){
         if (xDataPoints.get(0) > currMax){
-            Example.main(currPhone, "TEMPERATURE HAS EXCEEDED MAX LIMIT");
+            sendMessage(currPhone, "TEMPERATURE HAS EXCEEDED MAX LIMIT");
             textSent = true;
         }
         if (xDataPoints.get(0) < currMin) {
-            Example.main(currPhone, "TEMPERATURE HAS EXCEEDED MIN LIMIT");
+            sendMessage(currPhone, "TEMPERATURE HAS EXCEEDED MIN LIMIT");
             textSent = true;
         }
     }
@@ -291,7 +309,10 @@ public class HelloApplication extends Application {
                 else{
                     text.setText("Current Temperature: " + xDataPoints.get(xDataPoints.size()-1).toString() + currUnit);
                 }
-                checkLimits();
+                if (!textSent){
+                    checkLimits();
+                }
+
             });
         }, 0, 1, TimeUnit.SECONDS);
         information.setVgap(10.0);

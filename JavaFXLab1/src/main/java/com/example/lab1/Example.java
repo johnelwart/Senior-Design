@@ -9,13 +9,23 @@ public class Example {
     public static final String AUTH_TOKEN = System.getenv("TWILIO_ACCOUNT_AUTH");
     public static final String PHONE = System.getenv("TWILIO_ACCOUNT_PHONE");
 
-    public static void main(String args, String customMessage) {
+    public static void main(String[] args) {
+        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+
+        // To, From
+        Message message = Message.creator(new PhoneNumber("+15639497206"),
+                new PhoneNumber(PHONE),
+                "testing").create();
+
+        System.out.println(message.getSid());
+    }
+    public static void sendMessage(String args, String alert) {
         Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
 
         // To, From
         Message message = Message.creator(new PhoneNumber("+1" + args),
                 new PhoneNumber(PHONE),
-                customMessage).create();
+                alert).create();
 
         System.out.println(message.getSid());
     }
