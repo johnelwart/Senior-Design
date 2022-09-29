@@ -5,7 +5,9 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.chart.CategoryAxis;
@@ -13,8 +15,10 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -41,18 +45,22 @@ public class HelloApplication extends Application {
     final int WINDOW_SIZE = 300;
     public String currUnit = "\u00B0F";
     public boolean isF = true;
-
     public TempBufferReading buffer = new TempBufferReading();
-
     public TextField text = new TextField();
+    public Label currMinDisplay = new Label();
+    public Label currMaxDisplay = new Label();
+    public Label currPhoneDisplay = new Label();
+    public TextField minUpdate = new TextField();
+    public TextField maxUpdate = new TextField();
+    public TextField phoneUpdate = new TextField();
+
+    public Button updateButton = new Button();
     public Button button = new Button();
     BorderPane layout = new BorderPane();
-    //defining the axes
-    final NumberAxis xAxis = new NumberAxis(); // we are going to plot against time
+    FlowPane information = new FlowPane(Orientation.VERTICAL);
+    final NumberAxis xAxis = new NumberAxis();
     final NumberAxis yAxis = new NumberAxis();
     List<Double> xDataPoints = new ArrayList<Double>();
-
-    public static final DecimalFormat df = new DecimalFormat("0.00");
     private ScheduledExecutorService scheduledExecutorService;
 
     public HelloApplication() throws FileNotFoundException {
@@ -115,8 +123,6 @@ public class HelloApplication extends Application {
 
         button.setOnAction(actionEvent -> switchUnits());
 
-
-
         yAxis.setAutoRanging(false);
         xAxis.setAutoRanging(false);
         xAxis.setLowerBound(-300.0);
@@ -151,7 +157,17 @@ public class HelloApplication extends Application {
         text.setEditable(false);
         text.setPrefSize(100, 100);
         text.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
-        //text.textProperty().addListener((observable, oldVal, newVal) -> text.setText("Current Temperature: " + xDataPoints.get(0)));
+
+        currMinDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
+        currMinDisplay.setText("Current Min temperature in F:");
+        currMaxDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
+        currMaxDisplay.setText("Current Max temperature in F:");
+        currPhoneDisplay.setFont(Font.font("Verdana", FontWeight.THIN, 12));
+        currPhoneDisplay.setText("Current phone number: 5639497206");
+
+        minUpdate.setPromptText("Enter new min value in F");
+        maxUpdate.setPromptText("Enter new max value in F");
+        phoneUpdate.setPromptText("Enter new phone number");
 
         // setup a scheduled executor to periodically put data into the chart
         ScheduledExecutorService scheduledExecutorService;
@@ -202,11 +218,11 @@ public class HelloApplication extends Application {
 
             });
         }, 0, 1, TimeUnit.SECONDS);
-
-
+        information.setVgap(10.0);
+        information.getChildren().addAll(button, currMinDisplay, minUpdate, currMaxDisplay, maxUpdate,  currPhoneDisplay, phoneUpdate);
 
         layout.setCenter(lineChart);
-        layout.setLeft(button);
+        layout.setLeft(information);
         layout.setTop(text);
         Scene scene = new Scene(layout, 1000, 800);
 
