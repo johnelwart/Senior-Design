@@ -63,8 +63,9 @@ public class HelloApplication extends Application {
     public double currMax = 90.0;
     public double currMin = 50.0;
 
-    public String currPhone = "5639497206";
+    public String currPhone = "5632759872";
     private ScheduledExecutorService scheduledExecutorService;
+
 
     public HelloApplication() throws FileNotFoundException {
     }
@@ -189,17 +190,17 @@ public class HelloApplication extends Application {
     }
 
     public void checkLimits(){
-        if ((xDataPoints.get(0) > currMax) && (!textSent)){
+        if ((xDataPoints.get(xDataPoints.size() -1) > currMax) && (!textSent) && (xDataPoints.get(xDataPoints.size() -1) != -200.0)){
             sendMessage(currPhone, "TEMPERATURE HAS EXCEEDED MAX LIMIT");
             textSent = true;
         }
-        if ((xDataPoints.get(0) < currMin) && (!textSent)) {
+        if ((xDataPoints.get(xDataPoints.size() -1) < currMin) && (!textSent) && (xDataPoints.get(xDataPoints.size() -1) != -200.0)) {
             sendMessage(currPhone, "TEMPERATURE HAS EXCEEDED MIN LIMIT");
             textSent = true;
         }
         if (textSent){
-            if ((xDataPoints.get(0) < currMax) && (xDataPoints.get(0) > currMin) ) {
-                textSent = true;
+            if ((xDataPoints.get(xDataPoints.size() -1) < currMax) && (xDataPoints.get(xDataPoints.size() -1) > currMin) ) {
+                textSent = false;
             }
         }
     }
@@ -301,21 +302,20 @@ public class HelloApplication extends Application {
                 }
                 int length = series.getData().size();
                 series.getData().clear();
-
                 for (int x = 0; x < length; x++){
                     series.getData().add(new XYChart.Data<>( (length-x) * -1, xDataPoints.get(x)));
                 }
-
-                series.getData().add(new XYChart.Data<>(0, temp_double));
-                xDataPoints.add(temp_double);
-                if (tempTemp == "-127.0"){
+                if ((tempTemp.contains("-127")) || tempTemp.contains("85")) {
                     text.setText("Current Temperature: NO DATA PROVIDED");
+                    series.getData().add(new XYChart.Data<>(0, -200.0));
+                    xDataPoints.add(-200.0);
                 }
                 else{
+                    series.getData().add(new XYChart.Data<>(0, temp_double));
+                    xDataPoints.add(temp_double);
                     text.setText("Current Temperature: " + xDataPoints.get(xDataPoints.size()-1).toString() + currUnit);
                 }
                 checkLimits();
-
 
             });
         }, 0, 1, TimeUnit.SECONDS);
