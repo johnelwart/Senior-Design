@@ -7,3 +7,5 @@
 - [Blink Without Delay](https://www.arduino.cc/en/Tutorial/BuiltInExamples/BlinkWithoutDelay)
 - [Helpful Live Data Javafx](https://levelup.gitconnected.com/realtime-charts-with-javafx-ed33c46b9c8d)
 - [HC-05 to HC-06](http://www.martyncurrey.com/connecting-2-arduinos-by-bluetooth-using-a-hc-05-and-a-hc-06-pair-bind-and-link/)
+
+## Links for Lab 2
