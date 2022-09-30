@@ -6,7 +6,7 @@ import com.twilio.type.PhoneNumber;
 public class Example {
     // Find your Account Sid and Token at twilio.com/user/account
     public static final String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
-    public static final String AUTH_TOKEN = System.getenv("TWILIO_ACCOUNT_AUTH");
+    public static final String AUTH_TOKEN = System.getenv("TWILIO_ACCOUNT_AUTH"); // Creating initialization for texting with Twilio
     public static final String PHONE = System.getenv("TWILIO_ACCOUNT_PHONE");
 
     public static void main(String[] args) {
