@@ -1,6 +1,7 @@
 #include <LiquidCrystal.h>
 #include <DallasTemperature.h>
 #include <OneWire.h>
+#include <SoftwareSerial.h>
 
 const int rs = 12,
           en = 11, 
@@ -20,12 +21,20 @@ String degC = "Degrees C: ",
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 OneWire oneWire(2);
 DallasTemperature sensor(&oneWire);
+SoftwareSerial BTSerial(9, 10);
 
 void setup() {
   lcd.begin(16, 2);
   sensor.begin();
   pinMode(7, INPUT);
   Serial.begin(9600);
+
+  Serial.begin(9600);
+  Serial.println("Arduino with HC-06 is ready");
+ 
+  // HC-06 default baud rate is 9600
+  BTSerial.begin(9600);  
+  Serial.println("BTserial started at 9600");
 
   getTemps();
   
@@ -34,6 +43,15 @@ void setup() {
 }
 
 void loop() {
+
+  // Keep reading from HC-06 and send to Arduino Serial Monitor
+  while (BTSerial.available() > 0)
+    Serial.write(BTSerial.read());
+ 
+  // Keep reading from Arduino Serial Monitor and send to HC-06
+  while (Serial.available() > 0)
+    BTSerial.write(Serial.read());
+
   currMS = millis();
 
   if (currMS - prevMS >= interval) {
@@ -60,12 +78,12 @@ void loop() {
        degF = "Degrees F: " + String(sensor.getTempFByIndex(0));
         
        printToLCD(degC, degF);
-            
-       Serial.print(String(sensor.getTempCByIndex(0)) + "\n");
+
+       BTSerial.print(String(sensor.getTempCByIndex(0)) + "\n");  
      }   
     }
     
-    Serial.print(String(sensor.getTempCByIndex(0)) + "\n");
+    BTSerial.print(String(sensor.getTempCByIndex(0)) + "\n");  
     lcd.clear();
     
   }
