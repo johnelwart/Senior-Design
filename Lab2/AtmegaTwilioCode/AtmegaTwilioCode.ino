@@ -11,6 +11,6 @@ void setup() {
  
 void loop() {
     // If the is data avaiable on the RX pin, read the data one character at a time to c and print it to the serial monitor
-    delay(1000);
+    delay(5000);
     Serial.write("1");
 }

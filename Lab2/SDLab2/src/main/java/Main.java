@@ -9,13 +9,7 @@ import java.util.Arrays;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Hello world");
-
-        SerialPort[] ports = SerialPort.getCommPorts();
-
-        for (SerialPort port: ports) {
-            System.out.println(port.getSystemPortName());
-        }
+        Text texter = new Text();
         SerialPort comPort = SerialPort.getCommPorts()[0];
         comPort.openPort();
         comPort.addDataListener(new SerialPortDataListener() {
@@ -27,12 +21,15 @@ public class Main {
                 if (event.getEventType() != SerialPort.LISTENING_EVENT_DATA_AVAILABLE)
                     return;
                 byte[] newData = new byte[comPort.bytesAvailable()];
-                //System.out.println(comPort.readBytes());
                 int numRead = comPort.readBytes(newData, newData.length);
-                //System.out.println("Read " + numRead + " bytes.");
                 String response = new String(newData, 0, numRead);
                 System.out.println(response);
+                if (response.equals("1")) {
+                    Text.sendMessage();
+                    System.out.println("here");
+                }
             }
+
         });
     }
 
